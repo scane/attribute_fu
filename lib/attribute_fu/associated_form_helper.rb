@@ -119,11 +119,12 @@ module AttributeFu
         partial           = opts[:partial] || name
         local_assign_name = partial.split('/').last.split('.').first
 
-        associated.map do |element|
+        associated_elements = associated.map do |element|
           fields_for_associated(element, (opts[:fields_for] || {}).merge(:name => name)) do |f|
             @template.render({:partial => "#{partial}", :locals => {local_assign_name.to_sym => element, :f => f}.merge(opts[:locals] || {})}.merge(opts[:render] || {}))
           end
         end
+        associated_elements.join('').html_safe
       end
     end
     

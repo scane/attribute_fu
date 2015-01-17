@@ -6,8 +6,8 @@ module AttributeFu
         extend ClassMethods
         class << self; alias_method_chain :has_many, :association_option; end
         
-        class_inheritable_accessor  :managed_association_attributes
-        write_inheritable_attribute :managed_association_attributes, {}
+        class_attribute  :managed_association_attributes
+      self.managed_association_attributes =  {}
         
         after_update :save_managed_associations
       end
@@ -32,8 +32,6 @@ module AttributeFu
       def has_many_attributes(association_id, attributes) #:nodoc:
         association = send(association_id)
         attributes = {} unless attributes.is_a? Hash
-
-        attributes.symbolize_keys!
         
         if attributes.has_key?(:new)
           new_attrs = attributes.delete(:new)
@@ -110,7 +108,7 @@ module AttributeFu
       #
       def has_many_with_association_option(association_id, options = {}, &extension)
         unless (config = options.delete(:attributes)).nil?
-          managed_association_attributes[association_id] = {}
+          self.managed_association_attributes = managed_association_attributes.merge(association_id => {})
           if options.has_key?(:discard_if)
             discard_if = options.delete(:discard_if)
             discard_if = discard_if.to_proc if discard_if.is_a?(Symbol)
